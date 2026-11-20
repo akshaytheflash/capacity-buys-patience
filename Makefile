@@ -1,3 +1,5 @@
+PY ?= python3
+
 .PHONY: install smoke test capacity resources interventions analyse figures paper clean
 
 install:
@@ -5,29 +7,29 @@ install:
 
 # Tiny end-to-end sanity check on CPU (~1 min)
 smoke:
-	python -m src.sweep --config configs/smoke.yaml
+	$(PY) -m src.sweep --config configs/smoke.yaml
 
 # Regression test: an interrupted + resumed run must be bit-identical to an
 # uninterrupted one. Run this after touching train.py or the data pipeline.
 test:
-	python -m tests.test_resume
+	$(PY) -m tests.test_resume
 
 capacity:
-	python -m src.sweep --config configs/capacity.yaml
+	$(PY) -m src.sweep --config configs/capacity.yaml
 
 resources:
-	python -m src.sweep --config configs/resources.yaml
+	$(PY) -m src.sweep --config configs/resources.yaml
 
 interventions:
-	python -m src.sweep --config configs/interventions.yaml
+	$(PY) -m src.sweep --config configs/interventions.yaml
 
 analyse:
-	python -m src.analyse.transition --raw results/raw --out results/processed/transitions.csv
-	python -m src.analyse.mediation --raw results/raw --out results/processed/mediation.csv
-	python -m src.analyse.earlywarning --raw results/raw --out results/processed/earlywarning.csv
+	$(PY) -m src.analyse.transition --raw results/raw --out results/processed/transitions.csv
+	$(PY) -m src.analyse.mediation --raw results/raw --out results/processed/mediation.csv
+	$(PY) -m src.analyse.earlywarning --raw results/raw --out results/processed/earlywarning.csv
 
 figures:
-	python -m src.figures --processed results/processed --out results/figures
+	$(PY) -m src.figures --processed results/processed --out results/figures
 
 paper:
 	bash scripts/build_paper.sh
