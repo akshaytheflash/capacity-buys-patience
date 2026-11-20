@@ -69,7 +69,7 @@ def main():
         if f.stat().st_size > 5_000_000:
             continue
         r = put_file(a.token, f.as_posix(), f.read_bytes(), f"results: {f.name} [skip ci]")
-        if r.get("_status") in (200, 201):
+        if "_status" not in r or r.get("_status") in (200, 201):
             ok += 1
         else:
             print(f"[push] {f.name} failed: {r.get('_status')} {r.get('_body','')[:120]}")
