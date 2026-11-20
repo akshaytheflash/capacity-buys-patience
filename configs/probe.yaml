@@ -1,0 +1,18 @@
+# Timing probe: 1 run, full-size data, 3 epochs -> tells us per-epoch cost on the GPU
+inherits: base.yaml
+out_dir: results/raw/probe
+data:
+  num_train: 20000
+  num_test: 2000
+  num_shortcut_probe: 2000
+  num_shortcut_only_test: 2000
+  num_workers: 2
+model:
+  width: 1.0
+  depth: 18
+train:
+  epochs: 3
+grid:
+  seeds: [0]
+  width: [1.0]
+  depth: [18]
