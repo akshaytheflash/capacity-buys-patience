@@ -1,12 +1,12 @@
-# H1 capacity sweep, night-sized: 3 rho x 4 widths x 2 seeds = 24 runs x 40 epochs
-# ~20s/epoch on T4 with 20k images => ~5.3 GPU-hours
+# H1 capacity sweep, sized to finish in one Colab session.
+# 3 rho x 4 widths x 2 seeds = 24 runs x 30 epochs, 10k images (~6s/epoch on T4)
 inherits: base.yaml
 out_dir: results/raw/capacity
 data:
-  num_train: 20000
-  num_test: 2000
-  num_shortcut_probe: 2000
-  num_shortcut_only_test: 2000
+  num_train: 10000
+  num_test: 1000
+  num_shortcut_probe: 1000
+  num_shortcut_only_test: 1000
   num_workers: 2
 grid:
   seeds: [0, 1]
@@ -14,4 +14,4 @@ grid:
   depth: [18]
   shortcut_correlation: [0.85, 0.95, 0.99]
 train:
-  epochs: 40
+  epochs: 30

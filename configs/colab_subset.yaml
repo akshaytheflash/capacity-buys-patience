@@ -1,0 +1,17 @@
+# Fast first pass: 1 rho, 4 widths, 2 seeds = 8 runs x 30 epochs.
+# Guarantees a complete, analysable result even if the session is short.
+inherits: base.yaml
+out_dir: results/raw/capacity
+data:
+  num_train: 10000
+  num_test: 1000
+  num_shortcut_probe: 1000
+  num_shortcut_only_test: 1000
+  num_workers: 2
+grid:
+  seeds: [0, 1]
+  width: [0.25, 0.5, 1.0, 2.0]
+  depth: [18]
+  shortcut_correlation: [0.95]
+train:
+  epochs: 30
