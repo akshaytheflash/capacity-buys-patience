@@ -7,6 +7,7 @@ ARM="${1:-colab_subset}"
 cd "$(dirname "$0")/.."
 export GH_TOKEN="${GH_TOKEN:-}"
 
+mkdir -p "results/raw/${ARM}" "results/processed" "results/figures"
 python3 -m src.sweep --config "configs/${ARM}.yaml" &
 SWEEP=$!
 
