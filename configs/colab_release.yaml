@@ -1,0 +1,17 @@
+# Designed to produce a RELEASE: at rho<=0.7 the shortcut is wrong often enough
+# that abandoning it improves accuracy. 3 rho x 4 widths x 1 seed = 12 runs.
+inherits: base.yaml
+out_dir: results/raw/release
+data:
+  num_train: 10000
+  num_test: 1000
+  num_shortcut_probe: 1000
+  num_shortcut_only_test: 1000
+  num_workers: 2
+grid:
+  seeds: [0]
+  width: [0.25, 0.5, 1.0, 2.0]
+  depth: [18]
+  shortcut_correlation: [0.5, 0.6, 0.7]
+train:
+  epochs: 30
