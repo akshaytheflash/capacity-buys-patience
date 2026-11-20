@@ -197,3 +197,33 @@ MIT for code; manuscript text is the author's.
   export. Recorded in `paper/DEVIATIONS.md`.
 - Smoke test verified on CPU: `python -m src.sweep --config configs/smoke.yaml`
   (308K-param model, 2 epochs, ~6 s).
+
+---
+
+## Progress safety (every epoch is saved)
+
+Nothing is lost if a run dies: every completed epoch is flushed to disk and the model is
+checkpointed atomically.
+
+| Artefact | When written | Purpose |
+|---|---|---|
+| `<run_id>.jsonl` | one line per epoch, `fsync`-flushed | the metrics record; append-only |
+| `<run_id>.state.pt` | every epoch, via `os.replace` | model + optimizer + scheduler + epoch |
+| `<run_id>.canonical.json` | once per run | the true LR-schedule length |
+| `<run_id>.done` | final epoch only | marks the run complete |
+
+Re-running the same command resumes automatically:
+
+```
+[sweep] 2/36 resume width=0.5-seeds=0-width=1.0 (partial)
+[resume] width=0.5-seeds=0-width=1.0: continuing at epoch 17 (schedule total=40)
+```
+
+**Interrupting a run never changes its result.** This is enforced by a test:
+
+```bash
+make test        # an interrupted+resumed run must be bit-identical to an uninterrupted one
+```
+
+On Colab, export `CBPP_DRIVE_DIR=/content/drive/MyDrive/cbpp` and each checkpoint is also
+copied to Drive after every epoch, so even a full VM reset loses at most one epoch.

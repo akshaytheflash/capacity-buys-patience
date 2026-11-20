@@ -1,4 +1,4 @@
-.PHONY: install smoke capacity resources interventions analyse figures paper clean
+.PHONY: install smoke test capacity resources interventions analyse figures paper clean
 
 install:
 	pip install -r requirements.txt
@@ -6,6 +6,11 @@ install:
 # Tiny end-to-end sanity check on CPU (~1 min)
 smoke:
 	python -m src.sweep --config configs/smoke.yaml
+
+# Regression test: an interrupted + resumed run must be bit-identical to an
+# uninterrupted one. Run this after touching train.py or the data pipeline.
+test:
+	python -m tests.test_resume
 
 capacity:
 	python -m src.sweep --config configs/capacity.yaml

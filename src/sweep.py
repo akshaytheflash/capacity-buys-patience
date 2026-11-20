@@ -88,15 +88,21 @@ def main() -> None:
     runs = expand(cfg)
     if args.limit:
         runs = runs[: args.limit]
-    print(f"[sweep] {len(runs)} runs -> {out_dir}")
+    print(f"[sweep] {len(runs)} runs -> {out_dir}", flush=True)
 
     for i, (cell, run_cfg) in enumerate(runs, 1):
         rid = run_id_for(cell)
-        if (Path(out_dir) / f"{rid}.done").exists():
-            print(f"[sweep] {i}/{len(runs)} skip {rid}"); continue
-        print(f"[sweep] {i}/{len(runs)} start {rid}")
+        out = Path(out_dir)
+        if (out / f"{rid}.done").exists():
+            print(f"[sweep] {i}/{len(runs)} skip {rid} (complete)", flush=True); continue
+        if (out / f"{rid}.state.pt").exists():
+            print(f"[sweep] {i}/{len(runs)} resume {rid} (partial)", flush=True)
+        else:
+            print(f"[sweep] {i}/{len(runs)} start {rid}", flush=True)
         meta = run(run_cfg, rid, out_dir)
-        print(f"[sweep] {i}/{len(runs)} done  {rid} params={meta['params']:,}")
+        print(f"[sweep] {i}/{len(runs)} done  {rid} params={meta['params']:,}", flush=True)
+
+    print("[sweep] all runs complete", flush=True)
 
 
 if __name__ == "__main__":

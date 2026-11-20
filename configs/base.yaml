@@ -37,6 +37,9 @@ train:
   optimizer: adamw
   # Hard cap on examples seen; null = unlimited (epoch-count based)
   max_examples: null
+  # Train only up to this epoch, keeping the FULL-length LR schedule. Use this to stop
+  # early (e.g. a quick probe) without changing results on resume. null = run to `epochs`.
+  stop_at_epoch: null
   # Self-distillation: path to an early checkpoint to distil from (interventions only)
   distill_from: null
   distill_alpha: 0.0
