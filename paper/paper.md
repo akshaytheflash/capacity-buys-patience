@@ -229,26 +229,32 @@ unchanged to ImageNet-scale pretraining, and we say so in Section 7.
 
 # Results
 
-> **Status: results pending.** Every number below is generated from
-> `results/processed/*.csv` by `src/figures.py` and pasted only after the corresponding
-> experiment completes. Placeholders are explicit so that no claim in this draft is
-> currently supported by data.
+> **Status.** Every number below is generated from `results/processed/*.csv` by
+> `src/fill_paper.py`; nothing is transcribed by hand.
+
+[RESULT:summary]
 
 ## Does capacity change the release epoch? (H1)
 
-[PENDING EXPERIMENT] — Figure 1 plots $\mathrm{SD}_t$ over training for each width at
-$\rho = 0.95$; Figure 2 plots $\tau$ against width for all three values of $\rho$ with
-bootstrap intervals over seeds.
+Figure 1 plots $\mathrm{SD}_t$ over training for each width; Figure 2 plots $\tau$
+against width for each value of $\rho$.
+
+[RESULT:tau_table]
+
+Sensitivity of $\tau$ to its own definition ($\delta$ = drop threshold, $k$ = patience
+in epochs):
+
+[RESULT:tau_sensitivity]
 
 **Prediction.** $\tau$ increases with width. **Falsified if** $\tau$ is flat in width,
 or if the direction reverses and is stable across the $\tau$ sensitivity grid.
 
 ## Is the accuracy gap mediated by timing? (H2)
 
-[PENDING EXPERIMENT] — Figure 3 relates the small-minus-large $\tau$ gap to the
-large-minus-small accuracy gap. Table 2 reports, for each intervention applied to the
-smallest model, $\Delta\tau$ and $\Delta$accuracy against the untouched small baseline
-and against the large model.
+Figure 3 relates the small-minus-large $\tau$ gap to the large-minus-small accuracy gap,
+cell by cell.
+
+[RESULT:mediation_table]
 
 **Prediction.** Both differences are positive and rank-correlated. **Falsified if**
 interventions move $\tau$ substantially while leaving accuracy unchanged, which would
@@ -256,16 +262,15 @@ show that timing is not the operative variable.
 
 ## Is timing predictable early? (H3)
 
-[PENDING EXPERIMENT] — Table 3 reports grouped cross-validated AUC for the early-warning
-probe, with a calibration check.
+[RESULT:earlywarning]
 
 **Prediction.** AUC substantially above chance. **Falsified if** AUC is close to $0.5$,
 in which case the timing is real but not anticipable from cheap signals.
 
 ## Capacity, or compute and data? (H4)
 
-[PENDING EXPERIMENT] — Table 4 reports the small-versus-large accuracy and $\tau$ gaps
-under the four matching regimes.
+The resource-matching arm compares the smallest and largest widths under four budgets.
+Results are reported in `results/processed/mediation.csv` once the arm completes.
 
 **Prediction.** The gaps shrink but do not vanish under full matching. **Falsified if**
 full matching eliminates the gap, in which case the honest conclusion is that the
