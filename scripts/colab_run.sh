@@ -19,7 +19,7 @@ sync_results() {
   git add -A results 2>/dev/null
   git diff --cached --quiet 2>/dev/null && { cd - >/dev/null; return 0; }
   git -c user.email=colab@noreply -c user.name=colab commit -q -m "results: ${ARM} $(date -u +%H:%M:%S) [skip ci]"
-  git push -q -f origin HEAD:results-wip && echo "[sync $(date -u +%H:%M:%S)] pushed"
+  git push -q -f origin HEAD:refs/heads/results-wip && echo "[sync $(date -u +%H:%M:%S)] pushed"
   cd - >/dev/null
 }
 
