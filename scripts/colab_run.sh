@@ -10,7 +10,9 @@ git config user.name  "colab"
 
 # results/raw is gitignored locally; force-add so the VM's output reaches the repo
 sync_results() {
-  git add -f results/raw results/processed 2>/dev/null
+  # Only the small per-epoch JSONL logs are synced. The .state.pt checkpoints are
+  # 100+ MB and exceed GitHub's file limit, which silently rejected every push.
+  git add -f 'results/raw/**/*.jsonl' 'results/raw/*.jsonl' results/processed 2>/dev/null
   git diff --cached --quiet || git commit -q -m "results: ${ARM} @ $(date -u +%H:%M:%S) [skip ci]"
   git pull -q --rebase 2>/dev/null || true
   git push -q origin HEAD:results-wip 2>/dev/null && echo "[sync] pushed"
