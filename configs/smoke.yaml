@@ -1,0 +1,25 @@
+# Smoke test: CPU, a couple of minutes. Not for results.
+inherits: base.yaml
+seed: 0
+device: cpu
+out_dir: results/smoke
+
+data:
+  num_train: 512
+  num_test: 256
+  num_shortcut_probe: 256
+  num_shortcut_only_test: 256
+  num_workers: 0
+
+model:
+  width: 0.25
+  depth: 10
+
+train:
+  epochs: 2
+  batch_size: 64
+
+grid:
+  seeds: [0]
+  width: [0.25]
+  depth: [10]

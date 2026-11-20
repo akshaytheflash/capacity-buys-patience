@@ -1,0 +1,13 @@
+# H1: capacity sweep at fixed resources.
+# 3 shortcut-correlation levels x 4 widths x 3 seeds = 36 runs
+inherits: base.yaml
+out_dir: results/raw/capacity
+
+grid:
+  seeds: [0, 1, 2]
+  width: [0.25, 0.5, 1.0, 2.0]
+  depth: [18]
+  shortcut_correlation: [0.85, 0.95, 0.99]
+
+train:
+  epochs: 40

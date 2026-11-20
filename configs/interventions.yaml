@@ -1,0 +1,30 @@
+# H2: interventions applied to the SMALL model only.
+# Question: can any intervention recover the large model's final accuracy?
+inherits: base.yaml
+out_dir: results/raw/interventions
+
+grid:
+  seeds: [0, 1, 2]
+  width: [0.25]
+  depth: [18]
+  shortcut_correlation: [0.95]
+  intervention: [none, warmup, weight_decay, lr_schedule, label_smoothing, early_distill]
+
+train:
+  epochs: 40
+
+# Per-intervention overrides (applied in src/sweep.py)
+interventions:
+  none: {}
+  warmup:
+    warmup_epochs: 10
+  weight_decay:
+    weight_decay: 5.0e-3
+  lr_schedule:
+    scheduler: step
+    lr: 3.0e-3
+  label_smoothing:
+    label_smoothing: 0.1
+  early_distill:
+    distill_from: "<early-checkpoint>"
+    distill_alpha: 0.5

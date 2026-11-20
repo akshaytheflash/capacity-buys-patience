@@ -1,0 +1,18 @@
+# H4: resource-matched confound test.
+# Compares the smallest and largest widths under matched examples / updates.
+inherits: base.yaml
+out_dir: results/raw/resources
+
+grid:
+  seeds: [0, 1, 2]
+  width: [0.25, 2.0]
+  depth: [18]
+  match: [none, examples, updates, flops]
+
+# Interpretation:
+#   none     -> the naive capacity comparison
+#   examples -> equal number of training examples seen (batch size adjusted)
+#   updates  -> equal number of optimiser steps
+#   flops    -> equal approximate training FLOPs (epoch count adjusted)
+train:
+  epochs: 40

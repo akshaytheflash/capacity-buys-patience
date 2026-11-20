@@ -1,0 +1,52 @@
+# Base configuration. Every experiment arm inherits from this file.
+seed: 0
+device: auto            # auto | cpu | cuda
+out_dir: results/raw
+log_every: 1
+
+data:
+  name: controlled      # controlled | cifar10_watermark
+  root: data
+  image_size: 32
+  num_classes: 10
+  # fraction of examples in which the shortcut is present and predicts the label
+  shortcut_correlation: 0.95
+  # strength of the shortcut signal
+  shortcut_strength: 1.0
+  num_train: 20000
+  num_test: 2000
+  num_shortcut_probe: 2000
+  num_shortcut_only_test: 2000
+  num_workers: 2
+  download: true
+
+model:
+  arch: resnet         # resnet | vit_tiny
+  width: 1.0
+  depth: 18            # resnet only: 10 | 18 | 34
+  dropout: 0.0
+
+train:
+  epochs: 40
+  batch_size: 128
+  lr: 1.0e-3
+  weight_decay: 5.0e-4
+  warmup_epochs: 0
+  label_smoothing: 0.0
+  scheduler: cosine     # cosine | constant | step
+  optimizer: adamw
+  # Hard cap on examples seen; null = unlimited (epoch-count based)
+  max_examples: null
+  # Self-distillation: path to an early checkpoint to distil from (interventions only)
+  distill_from: null
+  distill_alpha: 0.0
+
+diagnostics:
+  # Epochs at which to run the full diagnostic battery ([] = every epoch, cheap)
+  probe_every: 1
+  # delta and k used to define the release epoch tau. Sensitivity-tested in analysis.
+  tau_delta: 0.2
+  tau_patience: 3
+  record_grad_norm: true
+  record_param_norm: true
+  record_entropy: true
