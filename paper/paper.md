@@ -3,34 +3,52 @@ title: "Reliability, Not Capacity, Gates When Networks Abandon Shortcuts"
 author: "Akshay — Draft v1.0"
 date: "November 2026"
 abstract: |
-  Deep networks often learn a spurious shortcut before the intended signal and abandon it
-  only after many epochs. Recent work explains the delay as slow traversal of a parameter
-  norm hierarchy, and separate work shows out-of-distribution failure is predictable from
-  early training dynamics; neither varies capacity. We preregistered the hypothesis that
-  capacity delays shortcut abandonment and that this delay explains the usual accuracy gap
-  between small and large models. We built a controlled vision task in which the true
-  signal, a colour shortcut and the correlation between them are exact knobs, and swept
-  width multipliers from 0.25 to 2.0 across three levels of shortcut reliability. The
-  hypothesis is not supported. Settled shortcut dependence is flat across a sixteen-fold
-  parameter range, with width differences of -0.04, -0.06 and +0.21 at correlation 0.5,
-  0.6 and 0.7, and final accuracy is not ordered by capacity. What the data do show is
-  that shortcut reliability governs whether the shortcut is ever abandoned: at correlation
-  0.95 no model at any width abandons it, while at correlation 0.7 or below every model's
-  dependence trajectory becomes unstable. Capacity changes the size of that instability --
-  narrow models stay within a band of about 1.2 to 1.6 in log-confidence, while wider
-  models swing through 6.3 to 18.1 and reach confident *inversion* of the shortcut -- but
-  not the endpoint. We report a preregistered failure and its implications for both the
-  norm-hierarchy account and for practitioners choosing between scale and data curation.
+  **Background.** Deep networks often learn a spurious shortcut before the intended
+  signal, and abandon it only after many epochs. Recent work attributes the delay to slow
+  traversal of a parameter-norm hierarchy under weight decay, and separate work shows
+  out-of-distribution failure is predictable from early training dynamics. Neither varies
+  model capacity, although capacity is the quantity practitioners control most directly.
+
+  **Question.** Holding data, optimiser and budget fixed, does capacity change the epoch
+  at which a network abandons a shortcut, and does that timing explain the usual accuracy
+  gap between small and large models?
+
+  **Method.** We built a controlled vision task in which a shape signal and a colour
+  shortcut are rendered separately, with an explicit correlation knob rho controlling how
+  often the shortcut is correct. We swept width multipliers from 0.25 to 2.0 across
+  rho in {0.5, 0.6, 0.7}, measuring probe-based shortcut dependence at every epoch, plus a
+  counterfactual split in which the shortcut is erased from the same test images. Ten of
+  twelve planned cells completed; there is one seed per cell.
+
+  **Findings.** The preregistered hypothesis is not supported. Settled shortcut
+  dependence is flat across a sixteen-fold parameter range, with narrowest-to-widest
+  differences of -0.04, -0.06 and +0.21 at rho = 0.5, 0.6 and 0.7, and final accuracy is
+  not ordered by capacity (0.849 to 0.923). Shortcut reliability, not capacity, governs
+  whether a shortcut is ever abandoned: at rho = 0.95 no model at any width abandons it
+  over 30 epochs, while at rho <= 0.7 every trajectory becomes unstable. Capacity does
+  change the amplitude of that instability: narrow models span 1.2 to 1.6 in
+  log-confidence, wider models span 6.3 to 18.1, and wide models reach confident
+  *inversion* of the shortcut (SD as low as -16.4) before settling.
+
+  **Conclusion.** Capacity changes the transient, not the endpoint. For shortcut robustness
+  the relevant axis is the reliability of the spurious cue, which is a property of data
+  collection rather than of model scale. We report a preregistered negative result and
+  state its limits: one seed per cell prevents a variance estimate, so the capacity effect
+  on instability remains to be confirmed.
+
   **Keywords:** shortcut learning, spurious correlations, model capacity, training
-  dynamics, pre-registered negative result
+  dynamics, preregistered negative result
 ---
 # Introduction
 
 Deep networks find the easiest explanation of their training data, not the one we
 intended. When a colour patch, a background texture or a watermark correlates with the
 label, the network will typically learn that correlation and generalise poorly to images
-where it is absent [@geirhos2020shortcut]. This is *shortcut learning*, and it is one of
-the most practically consequential failure modes in applied machine learning.
+where it is absent [@geirhos2020shortcut]. @geirhos2019texture show the effect is strong
+enough that ImageNet-trained models rely on texture more than shape, and
+@hendrycks2019corruptions show how brittle the resulting models are under ordinary
+corruption. This is *shortcut learning*, and it is one of the most practically
+consequential failure modes in applied machine learning.
 
 Recently, two lines of work have changed the picture. @nht2026 explain *why* the
 transition from shortcut to structured representation is slow: gradient descent with
@@ -62,6 +80,13 @@ interventions that delay commitment should partially substitute for scale. This 
 falsifiable claim with a concrete practical corollary: if true, the cheapest remedy for a
 small model on shortcut-prone data is not more parameters but a schedule that keeps it
 from crystallising too soon.
+
+The framing is not arbitrary. Capacity is known to change *which* solutions are found
+[@zhang2017rethinking; @nakkiran2021double; @frankle2020mode], and gradient descent
+prefers low-norm solutions on separable data [@soudry2018implicit], so it is natural to
+expect capacity to change how quickly a solution is *revised*. It does not, and the
+reason matters: what determines whether a shortcut is abandoned turns out to be the
+reliability of the shortcut itself.
 
 **We preregistered this hypothesis and it is not supported.** We report that failure in
 full rather than reframing it, because the data that falsify it also isolate a variable
@@ -99,34 +124,56 @@ practitioners assume it has.
 
 # Related Work
 
-**Shortcut learning.** @geirhos2020shortcut systematise how networks latch onto
-spurious cues, and the simplicity bias literature explains why easy features are learned
-first. Recent work studies *monitoring* shortcut dependence during training, and a body
-of work on spurious correlations (group robustness, worst-group accuracy) studies how to
-*mitigate* the dependence once it is identified. Our probe-based measure sits in the
-monitoring line but is used differently: as the dependent variable in a capacity sweep.
+**Shortcut learning and spurious correlations.** @geirhos2020shortcut characterise
+shortcut learning — the tendency of networks to rely on cues that correlate with the
+label but do not generalise — and document it across vision tasks. @geirhos2019texture
+show that ImageNet-trained networks are biased towards texture rather than shape, and
+that increasing shape bias improves both accuracy and robustness. Both are descriptive:
+they establish *that* networks prefer easy cues, not *when* or *at what capacity* that
+preference changes. Our work uses their framing but measures the trajectory rather than
+the endpoint.
 
-**Timing of representation change.** @nht2026 provide the closest account of *when*
-shortcuts are abandoned, attributing the delay to a norm hierarchy under regularisation.
-Our design is complementary: holding their mechanism in place, we manipulate capacity
-and ask whether the delay changes. A positive result would extend their framework; a
-null result would constrain it.
+A parallel literature treats the same phenomenon as a robustness problem and asks how to
+*fix* it. @sagawa2020groupdro optimise worst-group accuracy with group DRO, and
+@kirichenko2023retrain show that retraining the last layer on a balanced holdout recovers
+much of the lost robustness. This line is orthogonal to ours: it assumes the shortcut
+has already been identified and asks how to suppress it, whereas we ask what governs
+whether the model stops using it unaided.
 
-**Prediction from training dynamics.** @ood2026 demonstrate that future OOD failure is
-predictable from early source-side dynamics in a controlled shortcut setting. Our H3
-asks a related but distinct question — whether the *release epoch itself* is predictable
-across a capacity sweep — and uses grouped cross-validation over seeds so that the
-probe cannot memorise a seed.
+**Capacity and the solutions networks find.** @zhang2017rethinking demonstrate that deep
+networks can fit random labels, so raw capacity alone does not predict generalisation.
+@nakkiran2021double document double descent, where performance improves with model size
+beyond the interpolation threshold, and @ba2014deep show that a shallow student can match
+a deep teacher. @frankle2020mode find linearly connected optima under permutation
+symmetry, and @soudry2018implicit explain why gradient descent on separable data yields a
+low-norm solution. Taken together, these results establish that capacity affects *which*
+solution is reached, but none of them asks whether capacity changes how long a network
+persists in a wrong solution before reaching a right one. That is the gap we target.
 
-**Capacity and generalisation.** The double-descent and inductive-bias literatures study
-how model size and implicit bias change *which* solutions are found. We do not re-derive
-those results; we use them as context for the prediction that capacity should also change
-the *rate* at which solutions are revised.
+**Training dynamics and delayed generalisation.** @power2022grokking observe a sharp
+delayed transition from memorisation to generalisation on small algorithmic tasks, and
+@hendrycks2019corruptions provide the standard benchmark for the robustness failures that
+follow from shortcut reliance. The closest account of *timing* is @nht2026, who explain
+delayed representation learning as slow traversal of a parameter-norm hierarchy under
+weight decay and derive a bound on the delay. Their experiments span modular arithmetic,
+CIFAR-10 with spurious features, CelebA and Waterbirds. Crucially, they do not vary
+capacity. Our design holds their mechanism fixed and manipulates width, asking whether
+the delay they describe is capacity-dependent. A positive answer would extend their
+framework; our negative answer constrains it.
 
-**Small-scale studies.** Our design follows the tradition of studies that are small by
-deliberate design because the controlled setting makes a clean causal comparison
-possible, reporting effect sizes with confidence intervals rather than champion
-accuracies.
+@ood2026 show that future out-of-distribution failure is predictable from early
+source-side training dynamics in a controlled shortcut setting, transferring a
+logistic-regression probe from a CNN to an MLP. We specify an analogous early-warning
+analysis (H3) but cannot estimate it from the runs available here; we report that plainly
+rather than fitting a probe to ten single-seed runs.
+
+**Relation to this work.** Two things distinguish our study. First, we isolate
+**shortcut reliability** $
+ho$ as an explicit experimental knob and find that it, not
+capacity, governs whether the shortcut is ever abandoned — a variable no study above
+manipulates systematically. Second, we measure the **transient** rather than the endpoint,
+and find that capacity controls the amplitude of mid-training instability while leaving
+the settled dependence flat. Neither finding is predictable from the results cited above.
 
 # Method
 
@@ -221,12 +268,36 @@ probe is never evaluated on a seed it has seen. A high AUC from a linear model o
 epochs would support H3; a shallow probe is deliberate, since a deep model reaching the
 same AUC would say little.
 
-## Statistics
+## Statistical analysis
 
-Five or more seeds per cell; we report means with $95\%$ bootstrap confidence intervals
-over seeds, and use paired comparisons where seeds are shared across cells. The primary
-contrasts in H1–H4 are preregistered above. All exploratory analyses are labelled as
-such.
+**This section describes what was actually computed, not what was planned.** The
+preregistered design specified five or more seeds per cell with bootstrap confidence
+intervals over seeds. The runs available here are **one seed per cell** ($n = 1$), so
+no between-seed confidence interval can be computed and none is reported. Every
+comparison below is therefore a *descriptive* statement about single training runs, and
+we label it as such throughout.
+
+For each run ($n = 1$ seed, 30 epochs except one truncated at 13) we report four
+quantities of the per-epoch shortcut-dependence series $\{SD_t\}$:
+
+- **early maximum** $= \max_{t < T/3} SD_t$, the level reached before any decay;
+- **minimum** $= \min_t SD_t$, the extreme excursion during training;
+- **settled value** $= \frac{1}{5}\sum_{t=T-5}^{T-1} SD_t$, the endpoint behaviour;
+- **span** $= \max_t SD_t - \min_t SD_t$, the amplitude of the transient.
+
+The capacity effect is summarised as the difference in settled $SD$ between the narrowest
+and widest completed model at each correlation level, and as the ratio of spans. We report
+these as raw differences rather than as test statistics, because a paired test with
+$n = 1$ per cell would be reporting noise as inference.
+
+Where we say a pattern is "clearest" or "robust", the claim is about **agreement across
+correlation levels** — the same ordering appearing at $\rho = 0.5$, $0.6$ and $0.7$ —
+rather than about statistical significance. We flag in Section 7 that a single seed per
+cell cannot separate a capacity effect from run-to-run seed variance, and that this is
+the primary threat to the conclusions.
+
+All analyses are computed from the per-epoch logs by `src/paper_figures.py` and
+`results/processed/release_summary.csv`; no number in this paper is transcribed by hand.
 
 # Experimental Setup
 
@@ -269,6 +340,11 @@ epochs), and its total span.
 | 0.7 | 0.5 | 30 | 1.80 | -4.45 | 1.75 | 6.25 | 0.914 | 0.790 |
 | 0.7 | 1.0 | 30 | 1.65 | -16.42 | 1.59 | 18.09 | 0.915 | 0.781 |
 
+![Shortcut dependence over training for each width, at three levels of shortcut
+reliability. Narrow models (w=0.25) stay inside a small band; wider models show large
+excursions, reaching strongly negative values that indicate confident *inversion* of the
+shortcut. The settled level is similar in every panel.](results/figures/fig1_trajectories.png){width=100%}
+
 **The prediction that $\tau$ increases with capacity is not supported.** Two facts argue
 against it.
 
@@ -278,6 +354,10 @@ $\mathrm{SD}$ differences are $-0.04$ ($\rho{=}0.5$), $-0.06$ ($\rho{=}0.6$) and
 $+0.21$ ($\rho{=}0.7$). Larger models do not end training any less reliant on the
 shortcut; if anything the sign at $\rho{=}0.7$ points the other way.
 
+![Settled shortcut dependence (mean of the final five epochs) against width. The lines
+are flat to within 0.21 across a sixteen-fold parameter range, which is the null result:
+capacity does not change where training ends up.](results/figures/fig2_settled_vs_width.png){width=62%}
+
 *Second, the qualitative difference between capacities is in the transient, not the
 endpoint.* This is the clearest pattern in the data and it was not predicted. Every
 narrow model ($w{=}0.25$) stays within a small band: its $\mathrm{SD}$ span is 1.23–1.62
@@ -286,6 +366,10 @@ across all three correlation levels, and its minimum never goes far below zero
 with $\mathrm{SD}$ reaching $-9.06$, $-9.53$, $-16.42$. A negative $\mathrm{SD}$ means the
 model predicts *against* the shortcut more confidently than chance — it has not merely
 stopped using the shortcut, it has inverted it.
+
+![Total span of shortcut dependence (max minus min) against width. Span grows sharply with
+width at every correlation level, while the settled value does not (Figure 2). This is the
+paper's main empirical finding.](results/figures/fig3_span_vs_width.png){width=62%}
 
 So capacity does not buy patience in the sense of delaying a single crossing. Capacity
 buys **excursion**: wider models wander through a much larger region of shortcut
@@ -457,3 +541,65 @@ The work uses only synthetic data and public benchmark datasets. It does not inv
 human subjects, personal data, or models released for deployment. The broader concern —
 that findings about shortcut learning are often over-extrapolated from small studies — is
 addressed by the Limitations section rather than by new empirical work.
+
+# References
+
+References are listed in alphabetical order. Every entry was verified against Semantic
+Scholar or Crossref on 2026-11-21; the two most recent preprints (arXiv 2603.07323 and
+2610.12397) have had their abstracts reviewed but not their full text, and are marked
+accordingly.
+
+Ba, J. and Caruana, R. (2014). *Do Deep Nets Really Need to be Deep?* Advances in Neural
+Information Processing Systems. arXiv:1312.6184.
+
+Frankle, J., Dziugaite, G. K., Roy, D. M. and Carbin, M. (2020). *Linear Mode Connectivity
+and the Lottery Ticket Hypothesis.* International Conference on Machine Learning (ICML).
+arXiv:1912.05671.
+
+Geirhos, R., Jacobsen, J.-H., Michaelis, C., Zemel, R., Brendel, W., Bethge, M. and
+Wichmann, F. A. (2020). *Shortcut learning in deep neural networks.* Nature Machine
+Intelligence 2, 665–673. doi:10.1038/s42256-020-00257-z.
+
+Geirhos, R., Rubisch, P., Michaelis, C., Bethge, M., Wichmann, F. A. and Brendel, W.
+(2019). *ImageNet-trained CNNs are biased towards texture; increasing shape bias improves
+accuracy and robustness.* International Conference on Learning Representations (ICLR).
+arXiv:1811.12231.
+
+Hendrycks, D. and Dietterich, T. (2019). *Benchmarking Neural Network Robustness to Common
+Corruptions and Perturbations.* International Conference on Learning Representations
+(ICLR). arXiv:1903.12261.
+
+Kirichenko, P., Izmailov, P. and Wilson, A. G. (2023). *Last Layer Re-Training is
+Sufficient for Robustness to Spurious Correlations.* International Conference on Learning
+Representations (ICLR). arXiv:2204.02937.
+
+Nakkiran, P., Kaplun, G., Bansal, Y., Yang, T., Barak, B. and Sutskever, I. (2021). *Deep
+double descent: where bigger models and more data hurt.* Journal of Statistical Mechanics:
+Theory and Experiment. doi:10.1088/1742-5468/ac3a74.
+
+Power, A., Burda, Y., Edwards, H., Babuschkin, I. and Misra, V. (2022). *Grokking:
+Generalization Beyond Overfitting on Small Algorithmic Datasets.* ICLR Workshop on Science
+and Engineering of Deep Learning. arXiv:2201.02177.
+
+Sagawa, S., Koh, P. W., Hashimoto, T. B. and Liang, P. (2020). *Distributionally Robust
+Neural Networks for Group Shifts: On the Importance of Regularization for Worst-Case
+Generalization.* International Conference on Learning Representations (ICLR).
+arXiv:1911.08731.
+
+Soudry, D., Hoffer, E., Nacson, M. S., Gunasekar, S. and Srebro, N. (2018). *The Implicit
+Bias of Gradient Descent on Separable Data.* International Conference on Learning
+Representations (ICLR). arXiv:1710.10345.
+
+Zhang, C., Bengio, S., Hardt, M., Recht, B. and Vinyals, O. (2017). *Understanding deep
+learning requires rethinking generalization.* International Conference on Learning
+Representations (ICLR). arXiv:1611.03530.
+
+*Preprints reviewed in abstract only:*
+
+`nht2026` — *Norm-Hierarchy Transitions in Representation Learning: When and Why Neural
+Networks Abandon Shortcuts.* arXiv:2603.07323 (2026). Closest precursor; experiments span
+modular arithmetic, CIFAR-10, CelebA and Waterbirds, and do not vary capacity.
+
+`ood2026` — *Prospective Prediction of OOD Degradation from Source-Side Training
+Dynamics.* arXiv:2610.12397 (2026). Proof-of-principle on forecasting OOD failure from
+early training dynamics.

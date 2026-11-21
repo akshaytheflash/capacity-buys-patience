@@ -117,3 +117,37 @@ This is recorded here rather than quietly deleted.
 - `results/processed/runs/*.jsonl` is the durable artefact. Re-download from the
   `results-wip` branch if the VM dies.
 - The GitHub token passed through the chat must be rotated.
+
+## v1.1 — structure, references, figures, statistics
+
+Fixed four defects that made v1.0 not a paper:
+
+1. **References.** v1.0 had one in-text citation and no bibliography. Now 12 references,
+   every one verified against Semantic Scholar or Crossref by DOI/arXiv ID on 2026-11-21.
+   Verification caught two of my own errors: 1703.00810 is *not* Arpit et al. (it is
+   Shwartz-Ziv & Tishby) and 1811.12231 is the texture-bias paper, not the shape-analysis
+   one. Both corrected before publication. The two 2026 preprints are abstract-only and
+   marked as such in the bibliography.
+2. **Related Work** rewritten to engage: each cited work now says what it did, what it did
+   not do, and how this paper differs. Three paragraphs of engagement added across the gap
+   from descriptive shortcut work, mitigation work, and capacity/implicit-bias work.
+3. **Figures.** v1.0 had zero. Added three, generated from the per-epoch logs by
+   `src/paper_figures.py` at 300 dpi: trajectories by rho, settled SD vs width (the null
+   result), SD span vs width (the finding).
+4. **Statistical reporting.** The Statistics section previously claimed "five or more
+   seeds per cell with 95% bootstrap CIs", which was **false** — there is one seed per
+   cell. Rewritten to state n=1, define exactly what each reported quantity is (early
+   maximum, minimum, settled value, span), explain why no interval is computed, and say
+   that "robust" claims mean agreement across rho, not significance. This was the most
+   serious defect and it was an honesty problem, not a formatting one.
+
+Also: the abstract is now structured (Background / Question / Method / Findings /
+Conclusion) per ICMJE guidance.
+
+### Still missing, and deliberately so
+- No confidence intervals or significance tests: impossible with n=1 per cell.
+- The early-warning probe (H3) is specified but not estimated.
+- The intervention arm (H2) was not run.
+- One figure type (a per-run exists) is covered by the table instead; we did not add a
+  figure that duplicates Table 1.
+- Author affiliation and acknowledgements are placeholders for you to fill.

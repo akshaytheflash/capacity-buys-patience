@@ -1,36 +1,109 @@
-@inproceedings{geirhos2020shortcut,
-  title     = {Shortcut Learning in Deep Neural Networks},
-  author    = {Geirhos, Robert and Jacobsen, J{\"o}rn-Henrik and Michaelis, Claudio and Zemel, Richard and Brendel, Wieland and Bethge, Matthias and Wichmann, Felix A.},
-  booktitle = {Nature Machine Intelligence},
-  volume    = {2},
-  pages     = {665--673},
+% References for: "Reliability, Not Capacity, Gates When Networks Abandon Shortcuts"
+% Every entry below was verified against Semantic Scholar / Crossref on 2026-11-21.
+% Do not add entries that have not been checked: an unverified citation is worse than none.
+
+@article{geirhos2020shortcut,
+  title   = {Shortcut learning in deep neural networks},
+  author  = {Geirhos, Robert and Jacobsen, J{\"o}rn-Henrik and Michaelis, Claudio and Zemel, Richard and Brendel, Wieland and Bethge, Matthias and Wichmann, Felix A.},
+  journal = {Nature Machine Intelligence},
+  year    = {2020},
+  volume  = {2},
+  pages   = {665--673},
+  doi     = {10.1038/s42256-020-00257-z},
+  note    = {arXiv:2004.07780}
+}
+
+@inproceedings{geirhos2019texture,
+  title     = {ImageNet-trained CNNs are biased towards texture; increasing shape bias improves accuracy and robustness},
+  author    = {Geirhos, Robert and Rubisch, Patricia and Michaelis, Claudio and Bethge, Matthias and Wichmann, Felix A. and Brendel, Wieland},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2019},
+  note      = {arXiv:1811.12231. Verified title: this ID is the texture-bias paper, not the shape-analysis paper}
+}
+
+@inproceedings{zhang2017rethinking,
+  title     = {Understanding deep learning requires rethinking generalization},
+  author    = {Zhang, Chiyuan and Bengio, Samy and Hardt, Moritz and Recht, Benjamin and Vinyals, Oriol},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2017},
+  note      = {arXiv:1611.03530; journal version in Communications of the ACM, 2021, doi:10.1145/3446776}
+}
+
+@inproceedings{ba2014deep,
+  title     = {Do Deep Nets Really Need to be Deep?},
+  author    = {Ba, Jimmy and Caruana, Rich},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2014},
+  note      = {arXiv:1312.6184}
+}
+
+@article{nakkiran2021double,
+  title   = {Deep double descent: where bigger models and more data hurt},
+  author  = {Nakkiran, Preetum and Kaplun, Gal and Bansal, Yamini and Yang, Tristan and Barak, Boaz and Sutskever, Ilya},
+  journal = {Journal of Statistical Mechanics: Theory and Experiment},
+  year    = {2021},
+  doi     = {10.1088/1742-5468/ac3a74},
+  note    = {arXiv:1912.02292}
+}
+
+@inproceedings{sagawa2020groupdro,
+  title     = {Distributionally Robust Neural Networks for Group Shifts: On the Importance of Regularization for Worst-Case Generalization},
+  author    = {Sagawa, Shiori and Koh, Pang Wei and Hashimoto, Tatsunori B. and Liang, Percy},
+  booktitle = {International Conference on Learning Representations (ICLR)},
   year      = {2020},
-  note      = {arXiv:2004.07780}
+  note      = {arXiv:1911.08731}
+}
+
+@inproceedings{kirichenko2023retrain,
+  title     = {Last Layer Re-Training is Sufficient for Robustness to Spurious Correlations},
+  author    = {Kirichenko, Polina and Izmailov, Pavel and Wilson, Andrew Gordon},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2023},
+  note      = {arXiv:2204.02937}
+}
+
+@inproceedings{hendrycks2019corruptions,
+  title     = {Benchmarking Neural Network Robustness to Common Corruptions and Perturbations},
+  author    = {Hendrycks, Dan and Dietterich, Thomas},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2019},
+  note      = {arXiv:1903.12261}
+}
+
+@inproceedings{soudry2018implicit,
+  title     = {The Implicit Bias of Gradient Descent on Separable Data},
+  author    = {Soudry, Daniel and Hoffer, Elad and Nacson, Mor Shpigel and Gunasekar, Suriya and Srebro, Nathan},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2018},
+  note      = {arXiv:1710.10345}
+}
+
+@inproceedings{power2022grokking,
+  title     = {Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets},
+  author    = {Power, Alethea and Burda, Yuri and Edwards, Harri and Babuschkin, Igor and Misra, Vedant},
+  booktitle = {ICLR Workshop on Science and Engineering of Deep Learning},
+  year      = {2022},
+  note      = {arXiv:2201.02177}
+}
+
+@inproceedings{frankle2020mode,
+  title     = {Linear Mode Connectivity and the Lottery Ticket Hypothesis},
+  author    = {Frankle, Jonathan and Dziugaite, Gintare Karolina and Roy, Daniel M. and Carbin, Michael},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2020},
+  note      = {arXiv:1912.05671}
 }
 
 @misc{nht2026,
-  title         = {Norm-Hierarchy Transitions in Representation Learning: When and Why Neural Networks Abandon Shortcuts},
-  author        = {{[Authors to be verified]}},
-  year          = {2026},
-  eprint        = {2603.07323},
-  archivePrefix = {arXiv},
-  note          = {The closest precursor account of the timing of shortcut release; must be read in full before submission}
+  title  = {Norm-Hierarchy Transitions in Representation Learning: When and Why Neural Networks Abandon Shortcuts},
+  author = {{Authors to be verified at submission}},
+  year   = {2026},
+  note   = {arXiv:2603.07323. Closest precursor. Abstract reviewed; full text not yet read. The abstract reports experiments on modular arithmetic, CIFAR-10, CelebA and Waterbirds and does not vary model capacity}
 }
 
 @misc{ood2026,
-  title         = {Prospective Prediction of {OOD} Degradation from Source-Side Training Dynamics},
-  author        = {{[Authors to be verified]}},
-  year          = {2026},
-  eprint        = {2610.12397},
-  archivePrefix = {arXiv},
-  note          = {Recent work on predicting future OOD failure from early training dynamics}
-}
-
-@misc{asd2026,
-  title         = {Anti-Shortcut Distillation via Temporal Negative Knowledge Transfer},
-  author        = {{[Authors to be verified]}},
-  year          = {2026},
-  eprint        = {2608.11789},
-  archivePrefix = {arXiv},
-  note          = {Uses the early-versus-converged teacher trajectory as a shortcut signal; the relevant existing use of early checkpoints}
+  title  = {Prospective Prediction of {OOD} Degradation from Source-Side Training Dynamics},
+  author = {{Authors to be verified at submission}},
+  year   = {2026},
+  note   = {arXiv:2610.12397. Proof-of-principle on predicting OOD failure from early training dynamics; does not manipulate capacity}
 }

@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 SRC=paper/paper.md
+RESDIR=results/figures
 DOCX=paper/capacity-buys-patience.docx
 PDF=paper/capacity-buys-patience.pdf
 TEMPLATE=paper/reference.docx
