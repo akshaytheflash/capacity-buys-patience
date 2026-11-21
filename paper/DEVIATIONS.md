@@ -151,3 +151,34 @@ Conclusion) per ICMJE guidance.
 - One figure type (a per-run exists) is covered by the table instead; we did not add a
   figure that duplicates Table 1.
 - Author affiliation and acknowledgements are placeholders for you to fill.
+
+## v2.0 — rebuilt to the IEEE conference template (6-page standard)
+
+The attached `Full-Paper-template.docx` is an IEEE conference template: US Letter, two
+columns, 10pt Times, numbered `[n]` citations, captions above tables and below figures,
+references in 9pt. v1.x was a one-column 13-page report and was reformatted wholesale
+rather than reflowed.
+
+**Built with IEEEtran** (`paper/ieee/paper_ieee.tex`) rather than the .docx, because
+two-column float placement, balanced columns and IEEE caption conventions are only
+reliable through the LaTeX class that the template's own instructions describe.
+
+**Length: 5 pages**, inside the template's stated "most full papers are around six pages,
+maximum eight". We did not pad to exactly six: the page-3 shortfall is a float-placement
+artefact (Figure 1 is taller than the remaining column space), not missing content. The
+deliverable is `paper/capacity-buys-patience-ieee.pdf` plus the .tex source.
+
+### Content changed in the rebuild
+- Prose trimmed throughout; Related Work condensed from five paragraphs to four.
+- Table II reduced to six columns to fit a single column width; the dropped columns
+  (early max SD, epochs) remain available in `release_summary.csv`.
+- Figure 1 re-rendered as three stacked single-column panels.
+- Added in exchange, all from existing data: the complete-separation analysis
+  (span ratio 6.9x, no overlap between width classes), an explicit account of why no
+  release epoch is reported, and a paragraph on why a single-seed separation is still
+  informative.
+
+### Still true, and still stated in the paper
+- n = 1 per cell; no confidence intervals or significance tests.
+- Intervention arm not run; early-warning probe not estimable.
+- Author affiliation should be corrected from "Independent Researcher" if wrong.
