@@ -1,6 +1,6 @@
 ---
 title: "Reliability, Not Capacity, Gates When Networks Abandon Shortcuts"
-author: "Akshay — Draft v1.0"
+author: "Akshay — Draft v1.1"
 date: "November 2026"
 abstract: |
   **Background.** Deep networks often learn a spurious shortcut before the intended
