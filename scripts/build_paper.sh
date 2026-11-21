@@ -27,12 +27,12 @@ pandoc "$SRC" \
 pandoc "$SRC" \
   --from markdown+tex_math_dollars+pipe_tables+footnotes \
   --to latex \
-  --pdf-engine=pdflatex \
+  --pdf-engine=xelatex \
   -V geometry:margin=1in \
   -V fontsize=11pt \
   -V colorlinks=true \
   -V linkcolor=black -V urlcolor=blue -V citecolor=black \
-  -V documentclass=article \
+  -V documentclass=article -V mainfont="DejaVu Serif" -V monofont="DejaVu Sans Mono" \
   -o "$PDF"
 
 echo "[paper] wrote $DOCX and $PDF"

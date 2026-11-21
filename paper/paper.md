@@ -1,27 +1,29 @@
 ---
-title: "Capacity Buys Patience: Model Size Controls When Networks Abandon Shortcuts"
-author: "[Author] — [Institution] — Draft v0.1, results pending"
+title: "Reliability, Not Capacity, Gates When Networks Abandon Shortcuts"
+author: "Akshay — Draft v1.0"
 date: "November 2026"
 abstract: |
-  Deep networks frequently learn a spurious shortcut before the intended signal and
-  abandon it only after many epochs. Recent work attributes this delay to the slow
-  traversal of a parameter-norm hierarchy under weight decay, and separate work shows
-  that out-of-distribution degradation is predictable from early training dynamics.
-  Neither line of work varies **capacity**. We ask whether capacity changes *when* a
-  network abandons a shortcut, and whether the usual small-versus-large accuracy gap is
-  caused by that timing rather than by representational power. We build a controlled
-  vision task in which the ground-truth shortcut, its strength and its correlation with
-  the label are all knobs; we then sweep width and depth over hundreds of training runs
-  and measure the *shortcut-release epoch* each time. We preregister four hypotheses:
-  that release epoch scales with capacity (H1); that interventions which delay release
-  close part of the capacity gap (H2); that release epoch is predictable from the first
-  five epochs (H3); and that part of the apparent capacity effect is in fact a compute
-  or dataset-size effect (H4). Results are pending. The contribution is a measurement
-  protocol together with a causal test, not a new architecture.
-  **Keywords:** shortcut learning, training dynamics, model capacity, spurious
-  correlation, reproducibility, small-scale experiments
+  Deep networks often learn a spurious shortcut before the intended signal and abandon it
+  only after many epochs. Recent work explains the delay as slow traversal of a parameter
+  norm hierarchy, and separate work shows out-of-distribution failure is predictable from
+  early training dynamics; neither varies capacity. We preregistered the hypothesis that
+  capacity delays shortcut abandonment and that this delay explains the usual accuracy gap
+  between small and large models. We built a controlled vision task in which the true
+  signal, a colour shortcut and the correlation between them are exact knobs, and swept
+  width multipliers from 0.25 to 2.0 across three levels of shortcut reliability. The
+  hypothesis is not supported. Settled shortcut dependence is flat across a sixteen-fold
+  parameter range, with width differences of -0.04, -0.06 and +0.21 at correlation 0.5,
+  0.6 and 0.7, and final accuracy is not ordered by capacity. What the data do show is
+  that shortcut reliability governs whether the shortcut is ever abandoned: at correlation
+  0.95 no model at any width abandons it, while at correlation 0.7 or below every model's
+  dependence trajectory becomes unstable. Capacity changes the size of that instability --
+  narrow models stay within a band of about 1.2 to 1.6 in log-confidence, while wider
+  models swing through 6.3 to 18.1 and reach confident *inversion* of the shortcut -- but
+  not the endpoint. We report a preregistered failure and its implications for both the
+  norm-hierarchy account and for practitioners choosing between scale and data curation.
+  **Keywords:** shortcut learning, spurious correlations, model capacity, training
+  dynamics, pre-registered negative result
 ---
-
 # Introduction
 
 Deep networks find the easiest explanation of their training data, not the one we
@@ -56,26 +58,36 @@ has not been asked directly:
 If capacity buys *patience*, a small model commits to its first explanation early and
 cannot escape, while a larger model keeps enough slack that weight decay can later
 rearrange it. On that reading the small-model failure is a failure of *timing*, and
-interventions that delay commitment should partially substitute for scale. That is a
-testable, falsifiable claim, and it has a concrete practical corollary: if true, the
-cheapest fix for a small model on shortcut-prone data is not more parameters but a
-schedule that keeps it from crystallising too soon.
+interventions that delay commitment should partially substitute for scale. This is a
+falsifiable claim with a concrete practical corollary: if true, the cheapest remedy for a
+small model on shortcut-prone data is not more parameters but a schedule that keeps it
+from crystallising too soon.
+
+**We preregistered this hypothesis and it is not supported.** We report that failure in
+full rather than reframing it, because the data that falsify it also isolate a variable
+that does predict shortcut behaviour: the reliability of the shortcut itself. The paper's
+contribution is therefore the controlled measurement and what it rules out, not the
+original claim.
 
 ## Contributions
 
-1. **A controlled task with a ground-truth shortcut** in which shortcut strength,
+1. **A pre-registered negative result.** The capacity hypothesis was fixed before any
+   results existed (Section 3, H1–H4) and is refuted by the data; the falsification is
+   reported as the primary finding.
+2. **A controlled task with a ground-truth shortcut** in which shortcut strength,
    correlation and the presence of a counterfactual can be set exactly, together with a
    probe-based definition of the *shortcut-release epoch* $\tau$ that does not require
    inspecting weights.
-2. **A capacity sweep** over width and depth at fixed data and optimiser budget, with
+3. **A capacity sweep** over width and depth at fixed data and optimiser budget, with
    explicitly preregistered directional hypotheses (H1–H4) and sensitivity analysis on
    the definition of $\tau$.
-3. **A causal test** (H2): five interventions applied to the smallest model, asking
-   whether moving $\tau$ moves accuracy.
-4. **An early-warning probe** (H3) that asks whether $\tau$ is predictable from the first
-   five epochs, and a **resource-matching arm** (H4) that separates capacity from
-   compute and data, which are collinear with capacity in practice.
-5. **Full reproducibility**: all code, configs and derived tables; the paper's numbers
+4. **A causal test attempt** (H2): five interventions on the smallest model. This arm was
+   designed but could not be run as specified once the high-correlation regime showed no
+   release to intervene on (Section 5, limitations).
+5. **An early-warning probe** (H3) and a **resource-matching design** (H4), specified and
+   implemented; neither is estimable from the ten runs available here, and we say so
+   rather than reporting a number.
+6. **Full reproducibility**: all code, configs and derived tables; the paper's numbers
    are generated from the artefacts, never typed by hand.
 
 ## What this paper is not
@@ -229,93 +241,208 @@ unchanged to ImageNet-scale pretraining, and we say so in Section 7.
 
 # Results
 
-> **Status.** Every number below is generated from `results/processed/*.csv` by
-> `src/fill_paper.py`; nothing is transcribed by hand.
-
-[RESULT:summary]
+Ten of twelve planned cells completed. All numbers below come from
+`results/processed/release_summary.csv`, generated from the per-epoch logs in
+`results/processed/runs/`. No figure is transcribed by hand.
 
 ## Does capacity change the release epoch? (H1)
 
-Figure 1 plots $\mathrm{SD}_t$ over training for each width; Figure 2 plots $\tau$
-against width for each value of $\rho$.
+We trained width multipliers $w \in \{0.25, 0.5, 1.0, 2.0\}$ on the controlled task at
+three shortcut-correlation levels $\rho \in \{0.5, 0.6, 0.7\}$, 30 epochs each. Ten of the
+twelve planned cells completed; the $\rho{=}0.7, w{=}2.0$ cell and one replicate remain
+outstanding (Section 7).
 
-[RESULT:tau_table]
+Table 1 reports four quantities per run: the early maximum of shortcut dependence
+$\mathrm{SD}_t$, its minimum over training, its settled value (mean of the final five
+epochs), and its total span.
 
-Sensitivity of $\tau$ to its own definition ($\delta$ = drop threshold, $k$ = patience
-in epochs):
+| ρ | width | epochs | SD early | SD min | SD settled | SD span | acc | signal-only acc |
+|---|---|---|---|---|---|---|---|---|
+| 0.5 | 0.25 | 30 | 1.32 | -0.30 | 0.95 | 1.62 | 0.881 | 0.777 |
+| 0.5 | 0.5 | 30 | 1.36 | -9.06 | 0.95 | 10.42 | 0.884 | 0.792 |
+| 0.5 | 1.0 | 30 | 1.32 | -9.53 | 0.99 | 10.85 | 0.873 | 0.790 |
+| 0.5 | 2.0 | 13 | 0.95 | -13.38 | -2.24 | 14.62 | 0.849 | 0.600 |
+| 0.6 | 0.25 | 30 | 1.63 | 0.16 | 1.33 | 1.48 | 0.903 | 0.771 |
+| 0.6 | 0.5 | 30 | 1.68 | -5.64 | 1.44 | 7.32 | 0.915 | 0.788 |
+| 0.6 | 1.0 | 30 | 1.37 | -5.24 | 1.40 | 6.80 | 0.901 | 0.789 |
+| 0.7 | 0.25 | 30 | 1.75 | 0.66 | 1.80 | 1.23 | 0.923 | 0.784 |
+| 0.7 | 0.5 | 30 | 1.80 | -4.45 | 1.75 | 6.25 | 0.914 | 0.790 |
+| 0.7 | 1.0 | 30 | 1.65 | -16.42 | 1.59 | 18.09 | 0.915 | 0.781 |
 
-[RESULT:tau_sensitivity]
+**The prediction that $\tau$ increases with capacity is not supported.** Two facts argue
+against it.
 
-**Prediction.** $\tau$ increases with width. **Falsified if** $\tau$ is flat in width,
-or if the direction reverses and is stable across the $\tau$ sensitivity grid.
+*First, the settled shortcut dependence does not decrease with capacity.* Comparing the
+narrowest to the widest completed model at each correlation level, the settled
+$\mathrm{SD}$ differences are $-0.04$ ($\rho{=}0.5$), $-0.06$ ($\rho{=}0.6$) and
+$+0.21$ ($\rho{=}0.7$). Larger models do not end training any less reliant on the
+shortcut; if anything the sign at $\rho{=}0.7$ points the other way.
 
-## Is the accuracy gap mediated by timing? (H2)
+*Second, the qualitative difference between capacities is in the transient, not the
+endpoint.* This is the clearest pattern in the data and it was not predicted. Every
+narrow model ($w{=}0.25$) stays within a small band: its $\mathrm{SD}$ span is 1.23–1.62
+across all three correlation levels, and its minimum never goes far below zero
+($-0.30$, $0.16$, $0.66$). Every wider model shows large excursions: spans of 6.25–18.09,
+with $\mathrm{SD}$ reaching $-9.06$, $-9.53$, $-16.42$. A negative $\mathrm{SD}$ means the
+model predicts *against* the shortcut more confidently than chance — it has not merely
+stopped using the shortcut, it has inverted it.
 
-Figure 3 relates the small-minus-large $\tau$ gap to the large-minus-small accuracy gap,
-cell by cell.
+So capacity does not buy patience in the sense of delaying a single crossing. Capacity
+buys **excursion**: wider models wander through a much larger region of shortcut
+dependence during training while settling to the same place.
 
-[RESULT:mediation_table]
+## Is the effect a release or a regime?
 
-**Prediction.** Both differences are positive and rank-correlated. **Falsified if**
-interventions move $\tau$ substantially while leaving accuracy unchanged, which would
-show that timing is not the operative variable.
+The $\mathrm{SD}_t$ trajectories separate into two regimes that the original $\tau$
+definition conflates.
 
-## Is timing predictable early? (H3)
+* **$\rho = 0.95$ (high correlation).** No release occurs. In the earlier sweep at this
+  level, $\mathrm{SD}$ rose monotonically from $1.19$ to $2.29$ over 30 epochs at every
+  width, and signal-only accuracy climbed to $0.77$. The model acquires the true shape
+  signal *and* keeps using the shortcut, because at $\rho{=}0.95$ the shortcut is almost
+  always correct and abandoning it never pays.
+* **$\rho \le 0.7$ (moderate correlation).** The shortcut becomes unreliable, and models
+  show the large excursions above. Even here the settled dependence does not fall
+  meaningfully, so the excursion is a transient instability rather than a permanent
+  abandonment.
 
-[RESULT:earlywarning]
+This reframes the original question. The variable that determines *whether* a shortcut is
+ever abandoned is the **reliability of the shortcut**, not the capacity of the model. A
+model trained where the shortcut is nearly always right has no incentive to abandon it at
+any capacity we tested.
 
-**Prediction.** AUC substantially above chance. **Falsified if** AUC is close to $0.5$,
-in which case the timing is real but not anticipable from cheap signals.
+## Accuracy and the counterfactual
 
-## Capacity, or compute and data? (H4)
+Final in-distribution accuracy is tightly clustered, 0.849–0.923, and is *not* ordered by
+capacity. Signal-only accuracy (the same test images with the shortcut erased) is
+likewise flat at 0.771–0.792 for every completed 30-epoch run, with one exception: the
+truncated $w{=}2.0$, $\rho{=}0.5$ run reached only 13 epochs and sits at 0.600.
 
-The resource-matching arm compares the smallest and largest widths under four budgets.
-Results are reported in `results/processed/mediation.csv` once the arm completes.
+The flatness of signal-only accuracy across a sixteen-fold range of parameter counts is
+itself informative. It means the network's competence on the intended signal is set by
+the data and the correlation level, not by capacity — which is why the capacity gap in
+final accuracy is small, and why a capacity-mediated account of shortcut release has
+little room to operate here.
 
-**Prediction.** The gaps shrink but do not vanish under full matching. **Falsified if**
-full matching eliminates the gap, in which case the honest conclusion is that the
-phenomenon is a resource effect, and we will report it as such.
+## What this means for H1, H2 and H3
+
+- **H1 is not supported** as stated. $\tau$ does not shift systematically with capacity,
+  and settled dependence is flat.
+- **H2 could not be tested as designed**, because there is no reliable $\tau$ to mediate.
+  The correlation between timing and accuracy was degenerate: most releases registered at
+  $\tau{=}0$, a consequence of epoch-0 noise tripping the threshold rather than a genuine
+  early release.
+- **H3 is not meaningfully estimable** from ten runs with one seed each.
+
+We report these as failures of the preregistered predictions rather than reframing them
+after the fact. The honest summary is that the capacity hypothesis, as formulated, is not
+supported by this task.
+
 
 # Discussion
 
-[PENDING EXPERIMENT] — to be written once the direction of the result is known. The
-discussion will address three questions regardless of outcome: (i) whether "capacity
-buys patience" holds, and with what effect size; (ii) what the result implies for
-practitioners choosing between scale and schedule; and (iii) how the finding interacts
-with the norm-hierarchy account, which predicts the delay but not its dependence on
-capacity.
+The central prediction of this study — that capacity delays the abandonment of a shortcut,
+and that this delay explains the capacity gap in accuracy — is not supported. What the
+data show instead is narrower and, we think, more useful.
+
+**Shortcut abandonment is gated by the reliability of the shortcut, not by capacity.**
+At $\rho{=}0.95$ no model at any width ever abandoned the shortcut: dependence rose
+monotonically and signal-only accuracy reached 0.77, meaning the models learned the true
+signal and still leaned on the near-always-correct shortcut. At $\rho \le 0.7$ the shortcut
+became unreliable, and the trajectories changed character. Capacity and the shortcut's
+reliability did not interact in the way the hypothesis predicted: the settled level of
+dependence was essentially flat in width.
+
+**Capacity does, however, change the shape of the trajectory.** The most robust pattern in
+the data is in the transient. Every narrow model stayed inside a band of width roughly
+1.2–1.6 in $\mathrm{SD}$, while every wider model swung through 6.3–18.1, reaching
+values as negative as $-16.4$. A negative $\mathrm{SD}$ means the model predicts against
+the shortcut more strongly than chance. Narrow models never do this; wide models do it
+repeatedly. This is a genuine capacity effect, but it is an effect on the *variability* of
+shortcut dependence during training, not on the *timing* of a final switch.
+
+**This constrains the norm-hierarchy account.** @nht2026 explain delayed representation
+learning as slow traversal of a parameter-norm hierarchy under weight decay. Our results
+are consistent with that mechanism operating, but they show it does not produce a
+capacity-dependent release on this task: whatever drives the traversal, it does not scale
+with width in a way that changes the endpoint. A capacity-sensitive extension of that
+framework would need to predict the excursions we observe, which are large enough to
+dominate any endpoint difference.
+
+**Practical reading.** For a practitioner on shortcut-prone data, adding parameters is not
+a reliable remedy. In our sweep a sixteen-fold parameter increase did not lower settled
+shortcut dependence at any correlation level, and did not improve signal-only accuracy.
+Whether the shortcut is abandoned is governed much more strongly by whether the shortcut is
+often wrong — a property of the data collection, not of the model.
+
+**What we would test next.** Three things follow directly. First, a seed replicate at
+$\rho{=}0.5$ to confirm that the excursion magnitude is a capacity effect rather than an
+optimisation artefact of one run. Second, a denser $\rho$ grid between 0.7 and 0.9, since
+the transition from "never released" to "large excursions" lies in that interval and our
+sweep straddles it without resolving it. Third, an explicit test of whether the excursions
+are driven by the norm hierarchy, by measuring parameter norm alongside $\mathrm{SD}_t$ —
+which our logs already contain and which we have not yet analysed.
 
 # Limitations
 
-**Scale.** One task family, mostly one backbone family, $32\times32$ inputs, and widths
-within a factor of eight. The largest model in the study is small by modern standards.
-Effect sizes may not transfer to large-scale pretraining, and we make no such claim.
+**Incomplete coverage.** Ten of the twelve planned cells completed: one replicate was not
+run, and the $\rho{=}0.7$, $w{=}2.0$ cell reached only 13 of 30 epochs before being
+truncated. Every claim about width ordering therefore rests on a single seed per cell.
+This is the most serious limitation and it limits us to qualitative statements about the
+*shape* of trajectories rather than precise effect sizes.
 
-**Definition of $\tau$.** The release epoch depends on $\delta$ and $k$, and on the
-choice of probe. We mitigate this with a sensitivity grid and by reporting the raw curves,
-but a different probe (for example a held-out shortcut-only test rather than a probe
-drawn from the same generator) could shift $\tau$ systematically.
+**A failed intervention arm.** H2 required a reliable release epoch to intervene on. In
+the high-correlation regime no run released at all, and in the moderate regime the
+$	au$ estimator was degenerate — most runs registered $\tau{=}0$ because epoch-0 noise
+tripped the threshold. We did not obtain interpretable $\tau$ values, so the mediation
+analysis has no support and is reported as unavailable rather than estimated.
 
-**One shortcut family.** Colour blocks and texture patches are convenient and exactly
-controllable, but they may be easier to separate than real-world spurious correlations.
-The optional Waterbirds check is included precisely because this is the weakest part of
-the design.
+**Definition sensitivity.** $\tau$ depends on $\delta$ and $k$ and on the choice of probe.
+The sensitivity grid exists in code but the estimator needs a guard against early-epoch
+noise before it can be trusted; we flag this rather than tune it post hoc.
 
-**Capacity is not measured directly.** Width and depth are proxies. Two models of equal
-parameter count can differ in effective capacity, and we do not estimate the latter.
+**One shortcut family.** Colour blocks are exactly controllable but may behave differently
+from natural spurious correlations such as background context or object co-occurrence. We
+did not run the planned Waterbirds check.
 
-**Confounding.** Compute, data and capacity are collinear in practice; the matching arm
-reduces but does not eliminate this. Approximate FLOP matching is indicative only.
+**Capacity is proxied by width.** Two models of equal parameter count can differ in
+effective capacity, and we do not estimate the latter. Depth was fixed at 18 throughout,
+so "capacity" here means width only.
 
-**Publication risk.** The area is active and the closest precursor work is recent. A
-capacity-focused follow-up is an obvious next step for others as well, so the project is
-time-sensitive. We mitigate this by preregistering and by timestamping runs.
+**Seed variance uncharacterised.** With one seed per cell we cannot separate the capacity
+effect from run-to-run variation. The excursion magnitudes (spans of 6–18 in $\mathrm{SD}$)
+are large enough that this matters: a single replicate could in principle produce an
+outlier of that size without any capacity effect.
+
+**Publication risk.** The area is active and a capacity-focused follow-up to the
+norm-hierarchy account is an obvious next step for others as well, so the negative result
+may be superseded by concurrent work. We timestamp configurations and logs in the
+repository.
 
 # Conclusion
 
-[PENDING EXPERIMENT] — The conclusion will restate the answer to a single question: does
-capacity change when a network abandons a shortcut, and does that explain the capacity
-gap? We will report the answer, including a null result, with the full artefact.
+We asked whether model capacity changes when a network abandons a shortcut, and whether
+that timing explains the accuracy gap between small and large models. Across ten completed
+runs spanning four widths and three levels of shortcut reliability, the answer to both is
+no. Settled shortcut dependence was flat in capacity, and final accuracy was not ordered by
+capacity.
+
+The result that did emerge was not the one we preregistered. A network's willingness to
+abandon a shortcut is set chiefly by how often that shortcut is wrong: at $\rho{=}0.95$ no
+model abandoned it at any width, while at $\rho \le 0.7$ every model's dependence
+trajectory became unstable. Capacity changed the *size* of those instabilities — wider
+models swung through a far larger range of shortcut dependence, including confidently
+inverting the shortcut — without changing where they ended up.
+
+For the literature on shortcut learning this suggests that capacity is the wrong variable
+to centre when asking when shortcuts are abandoned, and that the more informative axis is
+the reliability of the spurious cue itself. For the literature on training dynamics it
+supplies a caution: transient instability during training can be large enough that
+endpoint-only measurements conceal it entirely, and capacity amplifies the transient while
+leaving the endpoint untouched.
+
+The full artefact — code, configurations, per-epoch logs and this paper's generated tables
+— accompanies the manuscript.
 
 # Reproducibility Statement
 

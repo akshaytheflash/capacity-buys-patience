@@ -81,3 +81,39 @@ Durability properties now guaranteed:
 - `<run_id>.state.pt` written every epoch via `os.replace` (atomic; never half-written).
 - `<run_id>.done` written only when the run reaches its final epoch.
 - On Colab, set `CBPP_DRIVE_DIR` to copy each checkpoint to Drive after every epoch.
+
+## v1.0 — results are in; the hypothesis failed
+
+**Outcome: H1 is not supported.** Settled shortcut dependence is flat across a 16x width
+range (differences -0.04, -0.06, +0.21 at rho = 0.5, 0.6, 0.7). Capacity changes the
+*transient* (SD span 1.2-1.6 for w=0.25 vs 6.3-18.1 for wider models, including
+confident inversion down to -16.42) but not the endpoint, and not accuracy.
+
+**The title changed** from "Capacity Buys Patience" to "Reliability, Not Capacity, Gates
+When Networks Abandon Shortcuts", because the original claim is falsified by our own data.
+This is recorded here rather than quietly deleted.
+
+### Data actually collected
+- 10 of 12 planned cells, 30 epochs each (one run truncated at 13 epochs)
+- rho in {0.5, 0.6, 0.7} x width in {0.25, 0.5, 1.0, 2.0}, **one seed per cell**
+- An earlier 4-run sweep at rho=0.95 (all four widths) motivating the correlation axis
+- Per-epoch logs in `results/processed/runs/`; summary in `results/processed/release_summary.csv`
+
+### Known gaps, stated in the paper
+- One seed per cell: no seed-variance estimate. Excursion magnitudes are large enough that
+  a replicate could matter. This is the top priority for a revision.
+- rho=0.7, w=2.0 cell incomplete (13/30 epochs).
+- H2 (interventions) not run: no reliable tau to mediate.
+- H3 (early warning) not estimable from 10 single-seed runs.
+- H4 (resource matching) designed, not run.
+- tau estimator is degenerate on these runs (epoch-0 noise trips the threshold); the paper
+  reports span and settled value instead, and says so.
+- Waterbirds check not run.
+- One visual figure was not produced; all results are tables from the CSVs.
+
+### Infrastructure notes (for the next session)
+- Colab free T4 sessions are reclaimed when idle; poll every few minutes or the VM is
+  wiped. Results sync only if pushed during the run.
+- `results/processed/runs/*.jsonl` is the durable artefact. Re-download from the
+  `results-wip` branch if the VM dies.
+- The GitHub token passed through the chat must be rotated.
